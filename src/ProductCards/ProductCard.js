@@ -186,7 +186,7 @@ export default function ProductCard({ product }) {
         <Image
           src={product.productpic1}
           alt={product.title || "Product image"}
-          height="160px"
+          height="140px"
           width="100%"
           objectFit="cover"
         />
@@ -225,50 +225,52 @@ export default function ProductCard({ product }) {
       </Box>
       
       {/* Content section */}
-      <Box p={3}>
+      <Box p={2} pb={0}>
         {/* Price */}
-        <Flex align="center">
-          <CurrencyRupeeTwoToneIcon fontSize="medium" />
-          <Text fontSize="xl" fontWeight="bold" color="gray.800">
+        <Flex align="center" mb={0}>
+          <CurrencyRupeeTwoToneIcon style={{ fontSize: '2.25rem', position: 'relative', top: '0px', marginRight: '1px', color: '#2B6CB0' }} />
+          <Text fontSize="3xl" fontWeight="bold" color="#2B6CB0" lineHeight="1">
             {formatPrice(product.price)}
           </Text>
         </Flex>
         
-        {/* Vehicle year - km (only for vehicles) */}
-        {isVehicle && (
-          <Text mt={1} fontSize="sm" color="gray.700" fontWeight="medium">
-            {getVehicleDetailsString()}
-          </Text>
-        )}
-        
         {/* Title */}
-        <Text mt={1} fontSize="md" fontWeight="medium" color="gray.800" noOfLines={1}>
+        <Text fontSize="2xl" fontWeight="bold" color="gray.800" noOfLines={1} lineHeight="1.1">
           {product.title}
         </Text>
         
         {/* Description */}
         {product.description && (
-          <Text mt={0.5} fontSize="sm" color="gray.600" noOfLines={1}>
+          <Text mt={0} fontSize="xl" color="gray.600" noOfLines={1} lineHeight="1.1" fontStyle="italic">
             {product.description.substring(0, 50)}{product.description.length > 50 ? '...' : ''}
           </Text>
         )}
         
+        {/* Vehicle year - km (only for vehicles) */}
+        {isVehicle && (
+          <Text mt={0} fontSize="md" color="gray.700" fontWeight="medium" lineHeight="1.2">
+            {getVehicleDetailsString()}
+          </Text>
+        )}
+        
         {/* Location and date */}
-        <Flex mt={2} justify="space-between" align="center">
+        <Flex mt={1} mb={0} justify="space-between" align="center">
           <Text 
             color="gray.500" 
-            fontSize="xs" 
+            fontSize="sm" 
             fontWeight="medium"
             textTransform="uppercase"
+            lineHeight="1.2"
           >
             {address.area || ''}{address.area && address.city ? ', ' : ''}{address.city || ''}
           </Text>
           
           <Text 
             color="gray.500" 
-            fontSize="xs" 
+            fontSize="sm" 
             fontWeight="medium"
             textTransform="uppercase"
+            lineHeight="1.2"
           >
             {daysAgo === 0 ? 'TODAY' : daysAgo === 1 ? 'YESTERDAY' : `${daysAgo} DAYS AGO`}
           </Text>
