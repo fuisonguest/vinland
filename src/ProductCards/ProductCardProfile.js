@@ -36,15 +36,15 @@ export default function ProductCardProfile({ad}) {
   const bhk = ad.propertyData?.bhk;
   
   return (
-    <Card key={ad._id} variant={"filled"} maxW="xl">
+    <Card key={ad._id} variant={"filled"} maxW="xl" p={0}>
       <a href={`/preview_ad/${ad._id}`}>
-        <Stack className="mt-2" direction="row" spacing={4}>
+        <Stack className="mt-0" direction="row" spacing={2}>
           <Box position="relative">
             <Image
               src={ad.productpic1}
               alt={ad.title}
-              w="100px"
-              h="100px"
+              w="90px"
+              h="90px"
               objectFit="cover"
               borderRadius="md"
             />
@@ -81,13 +81,20 @@ export default function ProductCardProfile({ad}) {
               </Badge>
             )}
           </Box>
-          <Stack spacing={2} flex={1}>
-            <Heading size="md">{ad.title}</Heading>
-            <Text fontSize="sm">{ad.description}</Text>
-            <Box textAlign="center">
-              <Text color="blue.600" fontSize="2xl">
-                &#x20b9;{ad.price}
-              </Text>
+          <Stack spacing={0} flex={1}>
+            <Heading size="2xl" fontWeight="extrabold" lineHeight="1">
+              {ad.title}
+            </Heading>
+            <Text fontSize="xl" lineHeight="1.1" fontWeight="medium" fontStyle="italic">
+              {ad.description}
+            </Text>
+            <Box textAlign="center" mt={0}>
+              <Flex justify="center" align="center">
+                <Text as="span" fontSize="3xl" position="relative" fontWeight="bold" color="#2B6CB0">&#x20b9;</Text>
+                <Text as="span" color="#2B6CB0" fontSize="4xl" fontWeight="bold" lineHeight="1">
+                  {ad.price}
+                </Text>
+              </Flex>
             </Box>
           </Stack>
         </Stack>
