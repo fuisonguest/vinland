@@ -1205,3 +1205,303 @@ button[aria-label="Wishlist"]::after {
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+/* Enhanced Login Form Styling */
+.dynamic-login-form {
+  transition: all 0.3s ease;
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.dynamic-login-form .form-control {
+  border-radius: 8px;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+}
+
+.dynamic-login-form .form-control:focus {
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
+  border-color: #4285f4;
+  background-color: #fff;
+}
+
+.dynamic-login-form .btn {
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: #4285f4;
+}
+
+.dynamic-login-form .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+}
+
+.dynamic-login-form .btn:active {
+  transform: translateY(0);
+}
+
+.dynamic-login-form .nav-tabs .nav-link {
+  color: #555;
+  font-weight: 500;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 0;
+}
+
+.dynamic-login-form .nav-tabs .nav-link.active {
+  color: #4285f4;
+  font-weight: 600;
+  border-bottom: 2px solid #4285f4;
+  background-color: transparent;
+}
+
+.dynamic-login-form p.text-center {
+  color: #555;
+  margin: 15px 0;
+}
+
+.dynamic-login-form a {
+  color: #4285f4;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.dynamic-login-form a:hover {
+  color: #1a66ff;
+  text-decoration: underline;
+}
+
+.dynamic-login-form .form-label {
+  font-weight: 500;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.dynamic-login-form .form-check-label {
+  color: #555;
+  cursor: pointer;
+}
+
+.dynamic-login-form .form-check-input:checked {
+  background-color: #4285f4;
+  border-color: #4285f4;
+}
+
+.dynamic-login-form .alert {
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.dynamic-login-form .badge {
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.dynamic-login-form .form-check {
+  display: flex;
+  align-items: center;
+}
+
+.dynamic-login-form .form-check-input {
+  margin-right: 8px;
+}
+
+/* Animation for transitions */
+.dynamic-login-form .input-transition {
+  animation: fadeSlideDown 0.3s ease;
+}
+
+@keyframes fadeSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+  .dynamic-login-form {
+    padding: 20px 15px;
+    max-width: 100%;
+  }
+  
+  .dynamic-login-form .btn {
+    padding: 10px;
+  }
+}
+
+/* Password field container with toggle button */
+.password-field-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.password-field-container .form-control {
+  padding-right: 40px;
+  transition: all 0.3s ease;
+}
+
+.password-field-container:focus-within {
+  transform: translateY(-2px);
+}
+
+.password-field-container:focus-within .password-toggle-btn {
+  color: #4285f4;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #6c757d;
+  transition: all 0.2s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  opacity: 0.7;
+}
+
+.password-toggle-btn:hover {
+  background-color: rgba(66, 133, 244, 0.1);
+  color: #4285f4;
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.25);
+}
+
+.password-toggle-btn i {
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+/* Enhanced Login Form Styling additions */
+.dynamic-login-form .form-outline {
+  position: relative;
+}
+
+.dynamic-login-form .form-outline:focus-within label {
+  color: #4285f4 !important;
+}
+
+.dynamic-login-form .form-outline:focus-within {
+  transform: translateY(-2px);
+}
+
+.otp-input.form-control {
+  letter-spacing: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.otp-input.form-control:focus {
+  letter-spacing: 10px;
+  box-shadow: 0 5px 15px rgba(66, 133, 244, 0.2);
+}
+
+/* Button hover enhancements */
+.dynamic-login-form .login-btn {
+  background: linear-gradient(45deg, #4285f4, #5b9cf5);
+  border: none;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.dynamic-login-form .login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: all 0.5s ease;
+}
+
+.dynamic-login-form .login-btn:hover::before {
+  left: 100%;
+}
+
+.dynamic-login-form .register-btn {
+  background: linear-gradient(45deg, #34a853, #4bc567);
+  border: none;
+  box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.dynamic-login-form .register-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: all 0.5s ease;
+}
+
+.dynamic-login-form .register-btn:hover::before {
+  left: 100%;
+}
+
+/* Mobile responsiveness enhancements */
+@media (max-width: 576px) {
+  .password-toggle-btn {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .password-toggle-btn i {
+    font-size: 0.9rem;
+  }
+  
+  .otp-input.form-control {
+    letter-spacing: 6px;
+    font-size: 1rem;
+  }
+  
+  .otp-input.form-control:focus {
+    letter-spacing: 8px;
+  }
+}
