@@ -9,6 +9,7 @@ import {
   MDBBtn,
   MDBInput,
   MDBCheckbox,
+  MDBIcon,
 }
 from 'mdb-react-ui-kit';
 import { Alert, Badge } from 'react-bootstrap';
@@ -23,11 +24,15 @@ function Login() {
   const [err, setErr] = useState();
   const [justifyActive, setJustifyActive] = useState('tab1');
   const [registered, setRegistered] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [userIdentifier, setUserIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [isPhoneNumber, setIsPhoneNumber] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [verificationId, setVerificationId] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRePassword, setShowRePassword] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -39,13 +44,18 @@ function Login() {
     };
   }, []);
 
-  const handleJustifyClick = (value) => {
-    if (value === justifyActive) {
-      return;
-    }
-
-    // Clean up reCAPTCHA when switching tabs
-    if (justifyActive === 'tab3' && value !== 'tab3') {
+  useEffect(() => {
+    // Check if input is a phone number
+    const phoneRegex = /^(\+\d{1,3})?[-.\s]?\d{10}$/;
+    setIsPhoneNumber(phoneRegex.test(userIdentifier));
+    
+    // Reset OTP state when identifier changes
+    if (otpSent) {
+      setOtpSent(false);
+      setVerificationCode('');
+      setVerificationId('');
+      
+      // Clear recaptcha if it exists
       if (window.recaptchaVerifier) {
         try {
           window.recaptchaVerifier.clear();
@@ -54,17 +64,38 @@ function Login() {
         }
         window.recaptchaVerifier = null;
       }
-      
-      // Reset phone auth state
-      setOtpSent(false);
-      setVerificationCode('');
-      setVerificationId('');
-      
-      // Clear the recaptcha container
-      const recaptchaContainer = document.getElementById('recaptcha-container');
-      if (recaptchaContainer) {
-        recaptchaContainer.innerHTML = '';
+    }
+  }, [userIdentifier]);
+
+  const handleJustifyClick = (value) => {
+    if (value === justifyActive) {
+      return;
+    }
+
+    // Reset states when switching tabs
+    setUserIdentifier('');
+    setPassword('');
+    setIsPhoneNumber(false);
+    setOtpSent(false);
+    setVerificationCode('');
+    setVerificationId('');
+    setShowPassword(false);
+    setShowRePassword(false);
+    
+    // Clean up reCAPTCHA when switching tabs
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.log("Error clearing reCAPTCHA:", error);
       }
+      window.recaptchaVerifier = null;
+    }
+    
+    // Clear the recaptcha container
+    const recaptchaContainer = document.getElementById('recaptcha-container');
+    if (recaptchaContainer) {
+      recaptchaContainer.innerHTML = '';
     }
 
     setJustifyActive(value);
@@ -104,13 +135,29 @@ function Login() {
     }
   }
 
-    function login(event){
-      event.preventDefault();
-      var email = document.getElementById("email").value;
-      var password = document.getElementById("password").value;
-      axios
+  function handleLogin(event) {
+    event.preventDefault();
+    
+    if (isPhoneNumber) {
+      // If OTP not sent yet, send OTP
+      if (!otpSent) {
+        sendOTP(event);
+      } else {
+        // If OTP sent, verify OTP
+        verifyOTP(event);
+      }
+    } else {
+      // Regular email login
+      loginWithEmail(event);
+    }
+  }
+
+  function loginWithEmail(event) {
+    event.preventDefault();
+    axios
       .post("https://retrend-final.onrender.com/login", {
-          email,password,
+        email: userIdentifier,
+        password: password,
       })
       .then((response) => {
         console.log(response.data);
@@ -130,7 +177,7 @@ function Login() {
           setErr(400);
         }
       });
-    }
+  }
 
   // Setup reCAPTCHA verifier
   const setupRecaptcha = () => {
@@ -177,7 +224,7 @@ function Login() {
   const sendOTP = async (e) => {
     e.preventDefault();
     
-    if (!phoneNumber || phoneNumber.length < 10) {
+    if (!userIdentifier || !isPhoneNumber) {
       toast({
         title: 'Invalid phone number',
         description: "Please enter a valid phone number",
@@ -193,9 +240,9 @@ function Login() {
       setupRecaptcha();
       
       // Format phone number with country code if not already included
-      const formattedPhoneNumber = phoneNumber.startsWith('+') 
-        ? phoneNumber 
-        : `+91${phoneNumber}`; // Assuming India (+91) as default
+      const formattedPhoneNumber = userIdentifier.startsWith('+') 
+        ? userIdentifier 
+        : `+91${userIdentifier}`; // Assuming India (+91) as default
       
       const appVerifier = window.recaptchaVerifier;
       
@@ -304,27 +351,30 @@ function Login() {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleRePasswordVisibility = () => {
+    setShowRePassword(!showRePassword);
+  };
+
   return (
-    <MDBContainer className="p-3 mt-1 mb-1 my-5 d-flex flex-column">
+    <MDBContainer className="p-3 mt-1 mb-1 my-5 d-flex flex-column dynamic-login-form">
       <MDBTabs pills justify className='mb-3 d-flex flex-row justify-content-between'>
         <MDBTabsItem>
           <MDBTabsLink onClick={() => handleJustifyClick('tab1')} active={justifyActive === 'tab1'}>
-            Login
+            LOGIN
           </MDBTabsLink>
         </MDBTabsItem>
         <MDBTabsItem>
           <MDBTabsLink onClick={() => handleJustifyClick('tab2')} active={justifyActive === 'tab2'}>
-            Register
-          </MDBTabsLink>
-        </MDBTabsItem>
-        <MDBTabsItem>
-          <MDBTabsLink onClick={() => handleJustifyClick('tab3')} active={justifyActive === 'tab3'}>
-            Phone Login
+            REGISTER
           </MDBTabsLink>
         </MDBTabsItem>
       </MDBTabs>
 
-      <MDBTabsContent >
+      <MDBTabsContent>
 
         <MDBTabsPane show={justifyActive === 'tab1'}>
 
@@ -337,25 +387,93 @@ function Login() {
 
             <p className="text-center mt-3">or:</p>
           </div>
-          <form onSubmit={login}>
-          <div className="mb-4">
-                <MDBInput label='Your Email' id='email' type='email' required/>
+          
+          {/* reCAPTCHA container - styled to be invisible but accessible */}
+          <div 
+            id="recaptcha-container" 
+            style={{ 
+              position: 'relative',
+              minHeight: '60px',
+              marginBottom: '10px',
+              overflow: 'hidden'
+            }}
+          ></div>
+          
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <MDBInput 
+                label='Email or Phone Number' 
+                value={userIdentifier}
+                onChange={(e) => setUserIdentifier(e.target.value)}
+                type='text' 
+                required
+                disabled={isPhoneNumber && otpSent}
+              />
+            </div>
+
+            {!isPhoneNumber && (
+              <div className="mb-4 input-transition password-field-container">
+                <MDBInput 
+                  label='Password' 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? 'text' : 'password'} 
+                  required
+                />
+                <button 
+                  type="button" 
+                  className="password-toggle-btn"
+                  onClick={togglePasswordVisibility}
+                >
+                  <MDBIcon icon={showPassword ? 'eye-slash' : 'eye'} />
+                </button>
               </div>
-
-              <div className="mb-4">
-                <MDBInput label='Password' id='password' type='password' required/>
+            )}
+            
+            {isPhoneNumber && otpSent && (
+              <div className="mb-4 input-transition">
+                <MDBInput 
+                  label='Enter 6-digit OTP' 
+                  value={verificationCode} 
+                  onChange={(e) => setVerificationCode(e.target.value)} 
+                  type='text' 
+                  required
+                  disabled={loading}
+                  maxLength={6}
+                  className="otp-input"
+                />
               </div>
+            )}
 
-          <div className="d-flex justify-content-between mx-4 mb-4">
-            <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Remember me' />
-            <a href="!#">Forgot password?</a>
-          </div>
+            {(!isPhoneNumber || !otpSent) && (
+              <div className="d-flex justify-content-between mx-4 mb-4">
+                <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Remember me' />
+                <a href="!#">Forgot password?</a>
+              </div>
+            )}
 
-          <MDBBtn className="mb-4 w-100" type="submit">Sign in</MDBBtn>
+            <MDBBtn className="mb-4 w-100 login-btn" type="submit" disabled={loading}>
+              {loading ? 'Processing...' : (isPhoneNumber && !otpSent) ? 'Send OTP' : (isPhoneNumber && otpSent) ? 'Verify OTP' : 'Sign in'}
+            </MDBBtn>
+            
+            {isPhoneNumber && otpSent && (
+              <p className="text-center mb-4 input-transition">
+                Didn't receive the code?{' '}
+                <a href="#" onClick={(e) => {
+                  e.preventDefault();
+                  // Reset OTP state
+                  setOtpSent(false);
+                  setVerificationCode('');
+                }}>
+                  Resend OTP
+                </a>
+              </p>
+            )}
           </form>
-          {err === 404 && <Alert variant='danger'> Incorrect Email</Alert>}
-          {err === 400 && <Alert variant='danger'> Incorrect Password</Alert>}
-          <p className="text-center">Not a member? <a href='#' onClick={() => handleJustifyClick('tab2')} active={justifyActive === 'tab2'}>Register</a></p>
+          
+          {err === 404 && <Alert variant='danger'>Incorrect Email</Alert>}
+          {err === 400 && <Alert variant='danger'>Incorrect Password</Alert>}
+          <p className="text-center">Not a member? <a href='#' onClick={() => handleJustifyClick('tab2')}>Register</a></p>
 
         </MDBTabsPane>
 
@@ -372,109 +490,54 @@ function Login() {
           </div>
           {registered === false &&
           <form onSubmit={register}>
-          <MDBInput wrapperClass='mb-4' label='Name' id='name' type='text' required/>
-          <MDBInput wrapperClass='mb-4' label='Email' id='reemail' type='email' required/>
-          <MDBInput wrapperClass='mb-4' label='Password' id='repassword' type='password' required/>
-          <MDBInput wrapperClass='mb-4' label='Repeat your password' id='rpassword' type='password' required/>
+            <MDBInput wrapperClass='mb-4' label='Name' id='name' type='text' required/>
+            <MDBInput wrapperClass='mb-4' label='Email' id='reemail' type='email' required/>
+            
+            <div className="mb-4 password-field-container">
+              <MDBInput 
+                wrapperClass='' 
+                label='Password' 
+                id='repassword' 
+                type={showPassword ? 'text' : 'password'} 
+                required
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={togglePasswordVisibility}
+              >
+                <MDBIcon icon={showPassword ? 'eye-slash' : 'eye'} />
+              </button>
+            </div>
+            
+            <div className="mb-4 password-field-container">
+              <MDBInput 
+                wrapperClass='' 
+                label='Repeat your password' 
+                id='rpassword' 
+                type={showRePassword ? 'text' : 'password'} 
+                required
+              />
+              <button 
+                type="button" 
+                className="password-toggle-btn"
+                onClick={toggleRePasswordVisibility}
+              >
+                <MDBIcon icon={showRePassword ? 'eye-slash' : 'eye'} />
+              </button>
+            </div>
 
-          <Badge id="alert" className="mb-1" bg="danger"></Badge>
+            <Badge id="alert" className="mb-1" bg="danger"></Badge>
 
-          <div className='d-flex justify-content-center mb-4'>
-            <MDBCheckbox name='flexCheck' id='flexCheckDefault' label='I have read and agree to the terms' required/>
-          </div>
-          {err === 409 && <Alert variant='danger'>User Already Exist,Please Login</Alert>}
-          <MDBBtn className="mb-4 w-100" type='submit '>Sign up</MDBBtn>
+            <div className='d-flex justify-content-center mb-4'>
+              <MDBCheckbox name='flexCheck' id='flexCheckDefault' label='I have read and agree to the terms' required/>
+            </div>
+            {err === 409 && <Alert variant='danger'>User Already Exist,Please Login</Alert>}
+            <MDBBtn className="mb-4 w-100 register-btn" type='submit'>Sign up</MDBBtn>
           </form>
-}
+        }
           {registered === true && <Alert variant='success'> Registered successfully</Alert>}
 
-        </MDBTabsPane>
-
-        <MDBTabsPane show={justifyActive === 'tab3'}>
-          <div className="text-center mb-3">
-            <p>Sign in with Phone Number:</p>
-          </div>
-          
-          {/* reCAPTCHA container - styled to be invisible but accessible */}
-          <div 
-            id="recaptcha-container" 
-            style={{ 
-              position: 'relative',
-              minHeight: '60px',
-              marginBottom: '10px',
-              overflow: 'hidden'
-            }}
-          ></div>
-          
-          <form onSubmit={sendOTP}>
-            <MDBInput 
-              wrapperClass='mb-4' 
-              label='Phone Number (with country code, e.g., +91xxxxxxxxxx)' 
-              value={phoneNumber} 
-              onChange={(e) => setPhoneNumber(e.target.value)} 
-              type='tel' 
-              required
-              disabled={otpSent || loading}
-            />
-            
-            {!otpSent && (
-              <MDBBtn className="mb-4 w-100" type="submit" disabled={loading}>
-                {loading ? 'Sending...' : 'Send OTP'}
-              </MDBBtn>
-            )}
-          </form>
-          
-          {otpSent && (
-            <form onSubmit={verifyOTP}>
-              <MDBInput 
-                wrapperClass='mb-4' 
-                label='Enter 6-digit OTP' 
-                value={verificationCode} 
-                onChange={(e) => setVerificationCode(e.target.value)} 
-                type='text' 
-                required
-                disabled={loading}
-                maxLength={6}
-              />
-              
-              <MDBBtn className="mb-4 w-100" type="submit" disabled={loading}>
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </MDBBtn>
-              
-              <p className="text-center">
-                Didn't receive the code?{' '}
-                <a href="#" onClick={(e) => {
-                  e.preventDefault();
-                  // Reset reCAPTCHA and OTP state
-                  if (window.recaptchaVerifier) {
-                    try {
-                      window.recaptchaVerifier.clear();
-                    } catch (error) {
-                      console.log("Error clearing reCAPTCHA:", error);
-                    }
-                    window.recaptchaVerifier = null;
-                  }
-                  
-                  // Clear the recaptcha container
-                  const recaptchaContainer = document.getElementById('recaptcha-container');
-                  if (recaptchaContainer) {
-                    recaptchaContainer.innerHTML = '';
-                  }
-                  
-                  setOtpSent(false);
-                  setVerificationCode('');
-                  setVerificationId('');
-                  
-                  // Trigger the OTP send process again after a short delay
-                  setTimeout(() => {
-                    sendOTP(new Event('click'));
-                  }, 500);
-                }}>
-                  Resend OTP
-                </a>
-              </p>
-            </form>
-          )}
         </MDBTabsPane>
 
       </MDBTabsContent>
