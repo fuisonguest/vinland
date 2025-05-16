@@ -159,11 +159,12 @@
 
 /* Scrollbar Styling */
 .message-container::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 .message-container::-webkit-scrollbar-track {
     background: #f1f1f1;
+    border-radius: 10px;
 }
 
 .message-container::-webkit-scrollbar-thumb {
@@ -175,6 +176,11 @@
     background: #128C7E;
 }
 
+.message-container {
+    overflow-anchor: auto;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain; /* Prevents scroll chaining */
+}
 
 /* Add these styles to your existing mychat.css file */
 
