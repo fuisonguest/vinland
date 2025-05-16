@@ -14,6 +14,8 @@ export default function FetchChat({ id, toData, to }) {
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const messageContainerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userScrolled, setUserScrolled] = useState(false);
+  const [isPolling, setIsPolling] = useState(true);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -32,16 +34,21 @@ export default function FetchChat({ id, toData, to }) {
   useEffect(() => {
     if (id) {
       const fetchNewMessages = async () => {
-        const currentMessageLength = newMessages.length;
         try {
           const response = await axios.get("https://retrend-final.onrender.com/api/new-messages", {
-            params: { id, to }, // Pass data as query parameters
+            params: { id, to },
             headers: {
               Authorization: `Bearer ${authToken}`,
             },
           });
-          const data = response.data; // Use response.data, no need for await
-          setNewMessages(data);
+          const data = response.data;
+          
+          // Only set state if there are new messages
+          if (data.length !== newMessages.length) {
+            setNewMessages(data);
+            setHasNewMessages(true);
+          }
+          
           setIsLoading(false);
 
           // Mark messages as read if they're sent to the current user
@@ -51,50 +58,82 @@ export default function FetchChat({ id, toData, to }) {
             );
             
             if (unreadMessages.length > 0) {
-              await axios.post("https://retrend-final.onrender.com/mark-messages-read", 
-                { messageIds: unreadMessages.map(msg => msg._id) },
-                {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                }
-              );
+              try {
+                await axios.post("https://retrend-final.onrender.com/mark-messages-read", 
+                  { messageIds: unreadMessages.map(msg => msg._id) },
+                  {
+                    headers: {
+                      Authorization: `Bearer ${authToken}`,
+                    },
+                  }
+                );
+              } catch (error) {
+                console.error("Error marking messages as read:", error);
+              }
             }
           }
-
-          if (currentMessageLength !== data.length) {
-            setHasNewMessages(true);
-          } else {
-            setHasNewMessages(false);
-          }
         } catch (error) {
-          console.error(error);
+          console.error("Error fetching messages:", error);
           setIsLoading(false);
         }
       };
 
-      // Fetch new messages every second
-      const intervalId = setInterval(fetchNewMessages, 1000);
+      // Initial fetch
+      fetchNewMessages();
+
+      // Set up polling with a longer interval (3 seconds instead of 1)
+      const intervalId = setInterval(() => {
+        if (isPolling) {
+          fetchNewMessages();
+        }
+      }, 3000);
 
       return () => {
         clearInterval(intervalId);
       };
     }
-  }, [id, authToken, to, authemail]);
+  }, [id, authToken, to, authemail, isPolling]);
 
   useEffect(() => {
-    if (hasNewMessages) {
+    if (hasNewMessages && !userScrolled) {
       scrollToBottom();
       setHasNewMessages(false);
     }
-  }, [hasNewMessages]);
+  }, [hasNewMessages, userScrolled]);
+
+  // Handle scroll events
+  const handleScroll = () => {
+    if (!messageContainerRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+    const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 10;
+    
+    // Set userScrolled flag when user scrolls up
+    if (!isAtBottom) {
+      setUserScrolled(true);
+    } else {
+      setUserScrolled(false);
+    }
+  };
 
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop =
-        messageContainerRef.current.scrollHeight;
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     }
   };
+
+  // Component visibility handling - pause polling when tab is not visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPolling(!document.hidden);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   if (isLoading) {
     return <Loading />;
@@ -103,9 +142,20 @@ export default function FetchChat({ id, toData, to }) {
   return (
     <Box
       className="message-container"
-      maxH="400px"
+      maxH="500px" // Increased height from 400px to 500px
       overflowY="auto"
       ref={messageContainerRef}
+      onScroll={handleScroll}
+      sx={{
+        scrollBehavior: "smooth",
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: '#25D366',
+          borderRadius: '8px',
+        }
+      }}
     >
       {newMessages.length === 0 ? (
         <div className="no-messages">
